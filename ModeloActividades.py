@@ -7,9 +7,22 @@ class ModeloActividades:
        self.conexion_MA = ConexionMysql()
        
     def obtener_actividades(self):
+        
+        sql = """
+                        SELECT 
+                        a.id, 
+                        a.nombre_actividad,
+                        a.estado, 
+                        u.nombre AS encargado,
+                        c.nombre_categoria AS categoria
+                    FROM actividades a 
+                    INNER JOIN usuarios u ON a.usuarios_id = u.id
+                    INNER JOIN categoria c ON a.categoria_id = c.id
+              """
+                    
         # Solo llamas a la función, el 'with' de adentro se encarga del resto
         with self.conexion_MA.conexion.cursor() as cursor_temporal:
-            cursor_temporal.execute("SELECT * FROM actividades")
+            cursor_temporal.execute(sql)
             return cursor_temporal.fetchall() # Recuerda retornar los datos. 
     
     def obtener_actividad(self, id):
