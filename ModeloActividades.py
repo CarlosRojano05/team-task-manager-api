@@ -45,22 +45,28 @@ class ModeloActividades:
             cursor_temporal.execute(sql,[id])
             return cursor_temporal.fetchone()
     
-    def ingresar_actividad(self, actividad, estado ):
+    def ingresar_actividad(self, actividad, estado, usuarios_id, categoria_id):
         # 1. Creamos la consulta SQL y agrupamos los valores de forma segura
-        sql = "INSERT INTO actividades (nombre_actividad, estado) VALUES (%s, %s)"
-        valores = (actividad, estado)
+        sql =   """
+                    INSERT INTO actividades (nombre_actividad, estado, usuarios_id, categoria_id)
+                    VALUES (%s, %s, %s, %s)
+                """
+        valores = (actividad, estado, usuarios_id, categoria_id)
          
         # 2. Usamos el 'with' con la conexión directa para crear un cursor temporal
         with self.conexion_MA.conexion.cursor() as cursor_temporal:
-            cursor_temporal.execute(sql, valores)
+            cursor_temporal.execute(sql, valores,)
             
         # 3. ¡EL PASO CLAVE! Confirmamos la inserción en la base de datos
             self.conexion_MA.conexion.commit()
             
-    def actualizar_actividad(self, id, actividad, estado):
+    def actualizar_actividad(self, id, actividad, estado, usuarios_id, categoria_id):
             # 1. Creamos la consulta SQL y agrupamos los valores de forma segura
-            sql = "UPDATE actividades SET nombre_actividad = %s, estado = %s WHERE id = %s"
-            valores = (actividad, estado, id)
+            sql =  """
+                    UPDATE actividades SET nombre_actividad = %s, estado =%s, usuarios_id = %s, categoria_id = %s 
+                    WHERE id = %s
+                    """
+            valores = (actividad, estado, usuarios_id, categoria_id, id)
              
             # 2. Usamos el 'with' con la conexión directa para crear un cursor temporal
             with self.conexion_MA.conexion.cursor() as cursor_temporal:

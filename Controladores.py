@@ -33,12 +33,14 @@ def crearactividad():
     # USAMOS .get() por seguridad. Si no viene el dato, no se cae el servidor.
     actividad = request.json.get('actividad_')
     estado = request.json.get('estado_')
+    usuarios_id = request.json.get('usuarios_id_')
+    categoria_id = request.json.get('categoria_id_')
     
     #VALIDACIÓN: Si el usuario mandó la petición vacía, le avisamos de inmediato
-    if not actividad or not estado:
-         return jsonify({"error": "Faltan datos obligatorios (actividad_ o estado_)"}), 400
+    if not actividad or estado is None or not usuarios_id or not categoria_id:
+         return jsonify({"error": "Faltan datos obligatorios (actividad_, estado_, usuarios_id_ o categoria_id_)"}), 400
      
-    actividades.ingresar_actividad(actividad, estado)
+    actividades.ingresar_actividad(actividad, estado, usuarios_id, categoria_id)
     return jsonify({"mensaje": "actividad creada exitosamente"})
 
 @app.route('/actualizar_actividad/<int:id>', methods = ['PUT'])
@@ -46,12 +48,14 @@ def actualizaractividad(id):
     # USAMOS .get() por seguridad. Si no viene el dato, no se cae el servidor.
     actividad = request.json.get('actividad_')
     estado = request.json.get('estado_')
+    usuarios_id = request.json.get('usuarios_id_')
+    categoria_id = request.json.get('categoria_id_')
     
     #VALIDACIÓN: Si el usuario mandó la petición vacía, le avisamos de inmediato
-    if actividad is None or estado is None:
-         return jsonify({"error": "Faltan datos obligatorios (actividad_ o estado_)"}), 400
+    if not actividad or estado is None or not usuarios_id or not categoria_id:
+         return jsonify({"error": "Faltan datos obligatorios (actividad_, estado_, usuarios_id_ o categoria_id_)"}), 400
      
-    actividades.actualizar_actividad(id, actividad, estado)
+    actividades.actualizar_actividad(id, actividad, estado, usuarios_id, categoria_id)
     return jsonify({"mensaje": "actividad actualizada exitosamente"})
 
 @app.route('/eliminar_actividad/<int:id>', methods = ['DELETE'])
