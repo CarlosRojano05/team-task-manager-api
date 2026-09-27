@@ -18,7 +18,7 @@ def obteneractividades():
     return jsonify(listactividades)
      
 @app.route('/actividad/<int:id>', methods=['GET'])
-def obtener_actividad(id):
+def obteneractividad(id):
     
     # 1. Buscamos los datos
     actividad = actividades.obtener_actividad(id)
