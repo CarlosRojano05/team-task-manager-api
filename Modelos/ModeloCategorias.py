@@ -29,3 +29,29 @@ class ModeloCategoria:
                 
             # 3. ¡EL PASO CLAVE! Confirmamos la inserción en la base de datos
                 self.conexion_MA.conexion.commit()
+                
+    def actualizar_categoria(self, id, categoria, color):
+                # 1. Creamos la consulta SQL y agrupamos los valores de forma segura
+                sql = "UPDATE categoria SET nombre_categoria = %s, color_hex = %s WHERE id = %s"
+                valores = (categoria, color, id)
+                 
+                # 2. Usamos el 'with' con la conexión directa para crear un cursor temporal
+                with self.conexion_MA.conexion.cursor() as cursor_temporal:  
+                    cursor_temporal.execute(sql, valores)
+                    filas_afectadas = cursor_temporal.rowcount # <-- Guardamos cuántas filas se cambiaron
+                # 3. ¡EL PASO CLAVE! Confirmamos la inserción en la base de datos
+                    self.conexion_MA.conexion.commit()   
+                    
+                return filas_afectadas    # <-- ¡Retornamos este número al controlador!    
+            
+    def eliminar_categoria(self, id):
+                    # 1. Creamos la consulta SQL y agrupamos los valores de forma segura
+                    sql = "DELETE FROM categoria WHERE id = %s"
+                    valores = (id,)
+                     
+                    # 2. Usamos el 'with' con la conexión directa para crear un cursor temporal
+                    with self.conexion_MA.conexion.cursor() as cursor_temporal:
+                        cursor_temporal.execute(sql, valores)
+                        
+                    # 3. ¡EL PASO CLAVE! Confirmamos la inserción en la base de datos
+                        self.conexion_MA.conexion.commit()

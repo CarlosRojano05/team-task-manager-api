@@ -38,9 +38,12 @@ class ModeloUsuarios:
             # 2. Usamos el 'with' con la conexión directa para crear un cursor temporal
             with self.conexion_MA.conexion.cursor() as cursor_temporal:
                 cursor_temporal.execute(sql, valores)
+                filas_afectadas = cursor_temporal.rowcount
                 
             # 3. ¡EL PASO CLAVE! Confirmamos la inserción en la base de datos
                 self.conexion_MA.conexion.commit()
+                
+                return filas_afectadas
                 
     def eliminar_usuario(self, id):
                     # 1. Creamos la consulta SQL y agrupamos los valores de forma segura

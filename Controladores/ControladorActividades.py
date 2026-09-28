@@ -21,7 +21,7 @@ def obteneractividad(id):
     actividad = actividades.obtener_actividad(id)
      
     if actividad is None:
-      return jsonify({"mensaje": "Producto no encontrado"}), 404 
+      return jsonify({"mensaje": f"Producto con el ID {id} no encontrado"}), 404 
     
     return jsonify(actividad)
 
@@ -52,13 +52,17 @@ def actualizaractividad(id):
     if not actividad or estado is None or not usuarios_id or not categoria_id:
          return jsonify({"error": "Faltan datos obligatorios (actividad_, estado_, usuarios_id_ o categoria_id_)"}), 400
      
-    actividades.actualizar_actividad(id, actividad, estado, usuarios_id, categoria_id)
+    filas_alteradas = actividades.actualizar_actividad(id, actividad, estado, usuarios_id, categoria_id)
+    
+    if filas_alteradas == 0:
+         return jsonify({"error": f"No se encontró la actividad con el ID {id}"}), 404
+         
     return jsonify({"mensaje": "actividad actualizada exitosamente"})
 
 @actividades_bp.route('/eliminar_actividad/<int:id>', methods = ['DELETE'])
 def eliminaractividad(id):
     if actividades.obtener_actividad(id):
        actividades.eliminar_actividad(id)
-       return jsonify({"mensaje": "actividad eliminada correctamente"})
+       return jsonify({"mensaje": f"actividad con el ID {id} fue eliminada correctamente"})
     else:
-       return jsonify({"mensaje": "la actividad no existe"}), 404 
+       return jsonify({"mensaje": f"actividad con el ID {id} no existe"}), 404 

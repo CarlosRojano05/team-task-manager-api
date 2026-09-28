@@ -21,7 +21,7 @@ def obtenerusuario(id):
     usuario = usuarios.obtener_usuario(id)
      
     if usuario is None:
-      return jsonify({"mensaje": "Producto no encontrado"}), 404 
+      return jsonify({"mensaje": f"Producto con el ID {id} no encontrado"}), 404 
     
     return jsonify(usuario)
 
@@ -52,7 +52,11 @@ def actualizarusuario(id):
     if not nusuario or not email or not rol:
          return jsonify({"error": "Faltan datos obligatorios (actividad_ o estado_)"}), 400
      
-    usuarios.actualizar_usuario(id, nusuario, email, rol)
+    filas_alteradas = usuarios.actualizar_usuario(id, nusuario, email, rol)
+    
+    if filas_alteradas == 0:
+     return jsonify({"error": f"No se encontró el usuario con el ID {id}"}), 404
+
     return jsonify({"mensaje": "actividad actualizada exitosamente"})
 
 
@@ -60,6 +64,6 @@ def actualizarusuario(id):
 def eliminarusuario(id):
     if usuarios.obtener_usuario(id):
        usuarios.eliminar_usuario(id)
-       return jsonify({"mensaje": "usuario eliminado correctamente"})
+       return jsonify({"mensaje": f"usuario con el ID {id} fue eliminado correctamente"})
     else:
-       return jsonify({"mensaje": "el usuario no existe"}), 404
+       return jsonify({"mensaje": f"usuario con el ID {id} no existe"}), 404
