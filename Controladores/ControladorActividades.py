@@ -1,15 +1,12 @@
-from ModeloActividades import ModeloActividades
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from Modelos.ModeloActividades import ModeloActividades
+from flask import jsonify, request, Blueprint
 
-#codigo ejecucion de la API
-
-app = Flask(__name__)
-CORS(app)
+# 🌟 ¡AQUÍ ESTÁ! Aquí es donde creas la variable que luego importas en app.py
+actividades_bp = Blueprint('actividades_bp', __name__)
 
 actividades = ModeloActividades()
 
-@app.route('/actividades', methods=['GET'])
+@actividades_bp.route('/actividades', methods=['GET'])
 def obteneractividades():
     
     # 1. Buscamos los datos
@@ -17,7 +14,7 @@ def obteneractividades():
     
     return jsonify(listactividades)
      
-@app.route('/actividad/<int:id>', methods=['GET'])
+@actividades_bp.route('/actividad/<int:id>', methods=['GET'])
 def obteneractividad(id):
     
     # 1. Buscamos los datos
@@ -28,7 +25,7 @@ def obteneractividad(id):
     
     return jsonify(actividad)
 
-@app.route('/nueva_actividad', methods = ['POST'])
+@actividades_bp.route('/nueva_actividad', methods = ['POST'])
 def crearactividad():
     # USAMOS .get() por seguridad. Si no viene el dato, no se cae el servidor.
     actividad = request.json.get('actividad_')
@@ -43,7 +40,7 @@ def crearactividad():
     actividades.ingresar_actividad(actividad, estado, usuarios_id, categoria_id)
     return jsonify({"mensaje": "actividad creada exitosamente"})
 
-@app.route('/actualizar_actividad/<int:id>', methods = ['PUT'])
+@actividades_bp.route('/actualizar_actividad/<int:id>', methods = ['PUT'])
 def actualizaractividad(id):
     # USAMOS .get() por seguridad. Si no viene el dato, no se cae el servidor.
     actividad = request.json.get('actividad_')
@@ -58,13 +55,10 @@ def actualizaractividad(id):
     actividades.actualizar_actividad(id, actividad, estado, usuarios_id, categoria_id)
     return jsonify({"mensaje": "actividad actualizada exitosamente"})
 
-@app.route('/eliminar_actividad/<int:id>', methods = ['DELETE'])
+@actividades_bp.route('/eliminar_actividad/<int:id>', methods = ['DELETE'])
 def eliminaractividad(id):
     if actividades.obtener_actividad(id):
        actividades.eliminar_actividad(id)
        return jsonify({"mensaje": "actividad eliminada correctamente"})
     else:
        return jsonify({"mensaje": "la actividad no existe"}), 404 
-
-if __name__ == '__main__' :
-    app.run(debug = True)
