@@ -14,7 +14,9 @@ class ModeloActividades:
                         a.nombre_actividad,
                         a.estado, 
                         u.nombre AS encargado,
-                        c.nombre_categoria AS categoria
+                        c.nombre_categoria AS categoria,
+                        a.usuarios_id AS usuario_id_original,     
+                        a.categoria_id AS categoria_id_original
                     FROM actividades a 
                     INNER JOIN usuarios u ON a.usuarios_id = u.id
                     INNER JOIN categoria c ON a.categoria_id = c.id
@@ -33,7 +35,9 @@ class ModeloActividades:
                                 a.nombre_actividad,
                                 a.estado, 
                                 u.nombre AS encargado,
-                                c.nombre_categoria AS categoria
+                                c.nombre_categoria AS categoria,
+                                a.usuarios_id AS usuario_id_original,     
+                                a.categoria_id AS categoria_id_original
                             FROM actividades a 
                             INNER JOIN usuarios u ON a.usuarios_id = u.id
                             INNER JOIN categoria c ON a.categoria_id = c.id

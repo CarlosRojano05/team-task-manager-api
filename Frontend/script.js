@@ -1,5 +1,6 @@
 // 1. La dirección central de tu servidor de Flask
 const URL_BASE = 'http://127.0.0.1:5000';
+let idActividadEnEdicion = null; // NUEVO: Guardará el ID de la tarea que se va a actualizar
 
 // 2. Función automática que se ejecuta apenas carga la página web
 document.addEventListener('DOMContentLoaded', () => {
@@ -36,16 +37,41 @@ function cargarActividades() {
                         <td>${act.encargado}</td>
                         <td>${act.categoria}</td>
                         <td>
-                            <button class="btn-delete">Eliminar</button>
+                            <button class="btn-edit" onclick="cargarDatosEnFormulario(
+                                        ${act.id}, 
+                                        '${act.nombre_actividad}', 
+                                        ${act.estado}, 
+                                        ${act.usuarios_id_original}, 
+                                        ${act.categoria_id_original}
+                                                                                       )">Editar</button>
+
+                            <button class="btn-delete" onclick="eliminarTarea(${act.id})">Eliminar</button>
                         </td>
                     </tr>
                 `;
                 // Inyectamos la fila dentro de la tabla en la pantalla
                 tablaBody.innerHTML += fila;
             });
-
+            
+            
         })
         .catch(error => console.error("Error al conectar con la API:", error));
+}
+
+function cargarDatosEnFormulario(id, nombre, estado, usuarioId, categoriaId) {
+    // 1. Guardamos el ID en nuestra variable secreta de arriba
+    idActividadEnEdicion = id;
+
+    // 2. Inyectamos los valores en las cajas del HTML usando sus IDs
+    document.getElementById('actividad_id').value = nombre;
+    document.getElementById('estado_id').value = estado;
+    document.getElementById('usuario_id').value = usuarioId;
+    document.getElementById('categoria_id').value = categoriaId;
+
+    // 3. Cambiamos el texto del botón principal para que el usuario sepa que está editando
+    const botonFormulario = document.querySelector('#form-actividad .btn-primary');
+    botonFormulario.textContent = "Actualizar Tarea";
+    botonFormulario.style.backgroundColor = "#ff9800"; // Le ponemos un color naranja de advertencia
 }
 
 // NUEVA FUNCIÓN: Trae los usuarios de MySQL y los mete en el desplegable
@@ -99,22 +125,66 @@ function guardarTarea(evento) {
         "categoria_id_": categoriaId
     };
     
-    // 4. El viaje por la red usando fetch con método POST
-    // 🧠 EL PORQUÉ DE LA CONFIGURACIÓN: Por defecto fetch() hace GET. Para mutar datos, debemos configurarlo de forma explícita.
-    fetch(`${URL_BASE}/nueva_actividad`, {
-        method: 'POST', // Le decimos que es una inserción
-        headers: {
-            'Content-Type': 'application/json' // Le avisa a Flask: "Oye, te estoy enviando un paquete de datos tipo JSON, no texto plano"
-        },
-        body: JSON.stringify(nuevaTarea) // Convierte el objeto de JavaScript en una cadena de texto JSON que pueda viajar por los cables de red
-    })
-    .then(respuesta => respuesta.json()) // Esperamos la respuesta de tu API
-    .then(resultado => {
-        alert(resultado.mensaje); // Muestra un letrero en la pantalla con el "actividad creada exitosamente" de tu Flask
+    
+ // EL TRUCO INTELIGENTE: Si idActividadEnEdicion TIENE UN NÚMERO, hacemos un PUT
+    if (idActividadEnEdicion !== null) {
         
-        // 5. Buenas prácticas de interfaz:
-        document.getElementById('form-actividad').reset(); // Limpia todas las cajas del formulario para que queden vacías de nuevo
-        cargarActividades(); // Vuelve a llamar a la función de lectura para que la tabla se actualice sola y veas la nueva tarea ahí mismo sin darle F5
+        fetch(`${URL_BASE}/actualizar_actividad/${idActividadEnEdicion}`, {
+            method: 'PUT', // Tu método avanzado de actualización
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevaTarea)
+        })
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+            alert(resultado.mensaje || resultado.error);
+            finalizarFlujoFormulario();
+        })
+        .catch(error => console.error("Error al actualizar:", error));
+
+    } else {
+        // De lo contrario, si está en null, hace el POST normal de antes
+        fetch(`${URL_BASE}/nueva_actividad`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevaTarea)
+        })
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+            alert(resultado.mensaje);
+            finalizarFlujoFormulario();
+        })
+        .catch(error => console.error("Error al guardar:", error));
+    }
+}
+
+// Función auxiliar para limpiar la pantalla y resetear el botón a su estado original
+function finalizarFlujoFormulario() {
+    document.getElementById('form-actividad').reset();
+    idActividadEnEdicion = null; // Reseteamos la variable de control
+    
+    // Regresamos el botón a su estado normal de Guardar
+    const botonFormulario = document.querySelector('#form-actividad .btn-primary');
+    botonFormulario.textContent = "Guardar Tarea";
+    botonFormulario.style.backgroundColor = ""; // Borra el naranja y vuelve al estilo CSS base
+    
+    cargarActividades(); // Refresca la tabla automáticamente
+}
+function eliminarTarea(id) {
+    //  PRÁCTICA DE SEGURIDAD (Senior): Siempre pregunta antes de borrar algo por error
+    if (!confirm(`¿Estás seguro de que deseas eliminar la actividad con ID ${id}?`)) {
+        return; // Si el usuario le da a "Cancelar", la función se frena y no pasa nada
+    }
+
+    // El viaje por la red directo a tu endpoint /eliminar_actividad/<id>
+    fetch(`${URL_BASE}/eliminar_actividad/${id}`, {
+        method: 'DELETE' // Configuras el método explícito de borrado
     })
-    .catch(error => console.error("Error al guardar la tarea:", error));
+    .then(respuesta => respuesta.json())
+    .then(resultado => {
+        alert(resultado.mensaje); // Muestra el mensaje "actividad eliminada correctamente" de tu Python
+        
+        // 🌟 REINICIO MANUAL: Volvemos a leer la base de datos para que la fila desaparezca sola de la pantalla
+        cargarActividades(); 
+    })
+    .catch(error => console.error("Error al eliminar la tarea:", error));
 }
