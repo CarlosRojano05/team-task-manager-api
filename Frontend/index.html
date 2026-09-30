@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Task Manager</title>
+    <!-- Enlazamos los estilos de CSS profesionales -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- 1. ENCABEZADO GLOBAL (HEADER): Zona del título y marca de la app -->
+    <header class="main-header">
+        <h1>📋 Team Task Manager</h1>
+        <p>Panel de Control Backend Relacional - SENA</p>
+    </header>
+
+    <!-- 2. CONTENIDO PRINCIPAL DE LA APP (MAIN): Aloja las secciones core del negocio -->
+    <main class="container">
+        
+        <!-- SECCIÓN 1: FORMULARIO PARA CREAR NUEVA ACTIVIDAD -->
+        <section class="card">
+            <h2>Crear Nueva Tarea</h2>
+            <form id="form-actividad">
+                <div class="form-group">
+                    <label for="actividad_id">Nombre de la Actividad:</label>
+                    <input type="text" id="actividad_id" required placeholder="Ej: Validar formularios">
+                </div>
+
+                <div class="form-group">
+                    <label for="estado_id">Estado Inicial:</label>
+                    <select id="estado_id">
+                        <option value="0">Pendiente</option>
+                        <option value="1">Terminado</option>
+                    </select>
+                </div>
+
+                <!-- 🌟 RETO RELACIONAL: Menús desplegables vacíos que cargaremos con JavaScript -->
+                <div class="form-group">
+                    <label for="usuario_id">Asignar a Empleado:</label>
+                    <select id="usuario_id" required>
+                        <option value="">Cargando empleados...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria_id">Categoría / Área:</label>
+                    <select id="categoria_id" required>
+                        <option value="">Cargando categorías...</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary">Guardar Tarea</button>
+            </form>
+        </section>
+
+        <!-- SECCIÓN 2: TABLA DONDE SE MOSTRARÁN LAS TAREAS DE LA API -->
+        <section class="card">
+            <h2>Lista de Actividades Relacionales</h2>
+            <table id="tabla-actividades">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Actividad</th>
+                        <th>Estado</th>
+                        <th>Encargado</th>
+                        <th>Categoría</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-actividades-body">
+                    <!-- Aquí JavaScript inyectará las filas de la API dinámicamente -->
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <!-- 3. PIE DE PÁGINA GLOBAL (FOOTER): Créditos y cierre profesional -->
+    <footer class="main-footer">
+        <p>&copy; 2026 - Desarrollado por Carlos | Fullstack Python & Flask</p>
+    </footer>
+
+    <!-- Enlazamos el cerebro de JavaScript al puro final -->
+    <script src="script.js"></script>
+</body>
+</html>
