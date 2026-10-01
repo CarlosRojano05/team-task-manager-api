@@ -273,7 +273,7 @@ function guardarCategoria(evento) {
         alert(resultado.mensaje || "Categoría registrada con éxito");
         
         document.getElementById('form-categoria').reset(); // Limpiamos la cajita de categoría
-        cargarCategorias(); // 👈 ¡LA MAGIA! Refrescamos el select de categorías de arriba al instante
+        cargarCategorias(); //  ¡LA MAGIA! Refrescamos el select de categorías de arriba al instante
     })
     .catch(error => console.error("Error al registrar categoría:", error));
 }
