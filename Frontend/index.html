@@ -49,8 +49,11 @@
                         <option value="">Cargando categorías...</option>
                     </select>
                 </div>
-
-                <button type="submit" class="btn-primary">Guardar Tarea</button>
+                 
+                <div class="botones-form">
+                    <button type="submit" class="btn-primary">Guardar Tarea</button>
+                    <button type="button" id="btn-cancelar" class="btn-secondary" style="display: none;">Cancelar</button>
+                </div>
             </form>
         </section>
 
@@ -73,9 +76,51 @@
                 </tbody>
             </table>
         </section>
+       
+       
+       
+        <!-- SECCIÓN 3: FORMULARIO INDEPENDIENTE PARA NUEVO EMPLEADO -->
+        <section class="card">
+            <h2>👤 Registrar Nuevo Empleado</h2>
+            <form id="form-usuario">
+                <div class="form-group">
+                    <label for="nombre_usuario">Nombre Completo:</label>
+                    <!-- type="text" para capturar letras planas -->
+                    <input type="text" id="nombre_usuario" required placeholder="Ej: Andrea Mendoza">
+                </div>
+                <div class="form-group">
+                    <label for="email_usuario">Correo Electrónico:</label>
+                    <!-- type="email" obliga al navegador a validar que lleve un @ y un dominio -->
+                    <input type="email" id="email_usuario" required placeholder="Ej: andrea@correo.com">
+                </div>
+                <div class="form-group">
+                    <label for="rol_usuario">Rol:</label>
+                    <!-- type="email" obliga al navegador a validar que lleve un @ y un dominio -->
+                    <input type="text" id="rol_usuario" required placeholder="Ej: Desarrollador">
+                </div>
+                <button type="submit" class="btn-primary">Registrar Empleado</button>
+            </form>
+        </section>
 
+        <!-- SECCIÓN 4: FORMULARIO INDEPENDIENTE PARA NUEVA CATEGORÍA -->
+        <section class="card">
+            <h2>🏷️ Registrar Nueva Categoría / Área</h2>
+            <form id="form-categoria">
+                <div class="form-group">
+                    <label for="nombre_cat_input">Nombre de la Categoría:</label>
+                    <input type="text" id="nombre_cat_input" required placeholder="Ej: Diseño Gráfico">
+                </div>
+                <div class="form-group">
+                    <label for="nombre_cat_input">Color:</label>
+                    <input type="text" id="color_cat_input" required placeholder="Ej: Azul">
+                </div>
+                <button type="submit" class="btn-primary">Registrar Categoría</button>
+            </form>
+        </section>
+  
     </main>
 
+    
     <!-- 3. PIE DE PÁGINA GLOBAL (FOOTER): Créditos y cierre profesional -->
     <footer class="main-footer">
         <p>&copy; 2026 - Desarrollado por Carlos | Fullstack Python & Flask</p>

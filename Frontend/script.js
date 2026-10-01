@@ -10,9 +10,18 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarCategorias();
 
     const formulario = document.getElementById('form-actividad');
-
     formulario.addEventListener('submit', guardarTarea);
     
+    const btnCancelar = document.getElementById('btn-cancelar');
+    btnCancelar.addEventListener('click', finalizarFlujoFormulario);
+
+    const formUsuario = document.getElementById('form-usuario');
+    formUsuario.addEventListener('submit', guardarUsuario);
+
+    const formCategoria = document.getElementById('form-categoria');
+    formCategoria.addEventListener('submit', guardarCategoria);
+
+
 });
 
 //  El cerebro: Hace el mismo trabajo que hacías en Postman con el GET
@@ -41,7 +50,7 @@ function cargarActividades() {
                                         ${act.id}, 
                                         '${act.nombre_actividad}', 
                                         ${act.estado}, 
-                                        ${act.usuarios_id_original}, 
+                                        ${act.usuario_id_original}, 
                                         ${act.categoria_id_original}
                                                                                        )">Editar</button>
 
@@ -72,6 +81,9 @@ function cargarDatosEnFormulario(id, nombre, estado, usuarioId, categoriaId) {
     const botonFormulario = document.querySelector('#form-actividad .btn-primary');
     botonFormulario.textContent = "Actualizar Tarea";
     botonFormulario.style.backgroundColor = "#ff9800"; // Le ponemos un color naranja de advertencia
+
+    //  NUEVO: Mostramos el botón de cancelar físico en la pantalla
+    document.getElementById('btn-cancelar').style.display = "inline-block";
 }
 
 // NUEVA FUNCIÓN: Trae los usuarios de MySQL y los mete en el desplegable
@@ -167,6 +179,8 @@ function finalizarFlujoFormulario() {
     botonFormulario.textContent = "Guardar Tarea";
     botonFormulario.style.backgroundColor = ""; // Borra el naranja y vuelve al estilo CSS base
     
+    // Escondemos el botón de cancelar otra vez
+    document.getElementById('btn-cancelar').style.display = "none";
     cargarActividades(); // Refresca la tabla automáticamente
 }
 function eliminarTarea(id) {
@@ -187,4 +201,80 @@ function eliminarTarea(id) {
         cargarActividades(); 
     })
     .catch(error => console.error("Error al eliminar la tarea:", error));
+
 }
+
+
+// SECCIÓN 3: FUNCIÓN PARA ENVIAR EL NUEVO EMPLEADO A FLASK
+
+function guardarUsuario(evento) {
+    // 1. Ponemos el "freno de mano" para que la página no parpadee
+    evento.preventDefault();
+
+    // 2. Raspamos los datos de las cajas de texto de usuarios
+    const nombre = document.getElementById('nombre_usuario').value;
+    const email = document.getElementById('email_usuario').value;
+    const rol = document.getElementById('rol_usuario').value;
+
+    // 3. Empacamos el JSON exacto. 
+    // 🧠 EL PORQUÉ DE LAS LLAVES: Revisa tu ControladorUsuarios.py. 
+    // Si allá buscas request.json.get('nombre_') y 'email_', aquí se deben llamar igual.
+    const nuevoUsuario = {
+        "usuario_": nombre,
+        "email_": email,
+        "rol_": rol
+    };
+
+    // 4. Disparamos el misil POST a tu endpoint de usuarios
+    fetch(`${URL_BASE}/nuevo_usuario`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json' // El letrero frágil para Flask
+        },
+        body: JSON.stringify(nuevoUsuario) // Aplanamos el objeto a texto plano para el cable
+    })
+    .then(respuesta => respuesta.json())
+    .then(resultado => {
+        alert(resultado.mensaje || "usuario registrado con éxito"); // Alerta de éxito
+        
+        // 🌟 REINICIO MANUAL E INTELIGENTE:
+        document.getElementById('form-usuario').reset(); // Limpiamos las cajitas de usuario
+        cargarUsuarios(); // ¡LA MAGIA! Volvemos a llamar al GET para que el nuevo nombre aparezca de una vez en el menú desplegable de las tareas arriba sin dar F5
+    })
+    .catch(error => console.error("Error al registrar usuario:", error));
+}
+
+
+// SECCIÓN 4: FUNCIÓN PARA ENVIAR LA NUEVA CATEGORÍA A FLASK
+
+function guardarCategoria(evento) {
+
+    evento.preventDefault();
+
+    // Raspamos el nombre desde su ID único
+    const nombreCategoria = document.getElementById('nombre_cat_input').value;
+    const color = document.getElementById('color_cat_input').value;
+
+    // Empacamos el JSON para tu ControladorCategorias.py
+    const nuevaCategoria = {
+        "categoria_": nombreCategoria, // Revisa si en tu Flask lo buscas como 'categoria_' o 'nombre_categoria_'
+        "color_": color
+    };
+
+    fetch(`${URL_BASE}/nueva_categoria`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(nuevaCategoria)
+    })
+    .then(respuesta => respuesta.json())
+    .then(resultado => {
+        alert(resultado.mensaje || "Categoría registrada con éxito");
+        
+        document.getElementById('form-categoria').reset(); // Limpiamos la cajita de categoría
+        cargarCategorias(); // 👈 ¡LA MAGIA! Refrescamos el select de categorías de arriba al instante
+    })
+    .catch(error => console.error("Error al registrar categoría:", error));
+}
+
