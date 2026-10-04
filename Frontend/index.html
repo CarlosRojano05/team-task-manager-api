@@ -3,130 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Task Manager</title>
-    <!-- Enlazamos los estilos de CSS profesionales -->
+    <title>Team Task Manager - Dashboard Pro</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <!-- 1. ENCABEZADO GLOBAL (HEADER): Zona del título y marca de la app -->
+    <!-- 1. ENCABEZADO GLOBAL -->
     <header class="main-header">
         <h1>📋 Team Task Manager</h1>
-        <p>Panel de Control Backend Relacional - SENA</p>
+        <p>Panel de Administración Avanzado (SPA)</p>
+        
+        <!-- 🌟 MENÚ DE PESTAÑAS (TABS) -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="modulo-actividades">📋 Actividades</button>
+            <button class="tab-btn" data-tab="modulo-usuarios">👤 Empleados</button>
+            <button class="tab-btn" data-tab="modulo-categorias">🏷️ Categorías</button>
+        </nav>
     </header>
 
-    <!-- 2. CONTENIDO PRINCIPAL DE LA APP (MAIN): Aloja las secciones core del negocio -->
+    <!-- 2. CONTENIDO PRINCIPAL -->
     <main class="container">
         
-        <!-- SECCIÓN 1: FORMULARIO PARA CREAR NUEVA ACTIVIDAD -->
-        <section class="card">
-            <h2>Crear Nueva Tarea</h2>
-            <form id="form-actividad">
-                <div class="form-group">
-                    <label for="actividad_id">Nombre de la Actividad:</label>
-                    <input type="text" id="actividad_id" required placeholder="Ej: Validar formularios">
-                </div>
+        <!-- =======================================================
+             MÓDULO 1: GESTIÓN DE ACTIVIDADES
+             ======================================================= -->
+        <section id="modulo-actividades" class="tab-content active">
+            <!-- Formulario Actividades -->
+            <div class="card">
+                <h2>Crear Nueva Tarea</h2>
+                <form id="form-actividad">
+                    <div class="form-group">
+                        <label for="actividad_id">Nombre de la Actividad:</label>
+                        <input type="text" id="actividad_id" required placeholder="Ej: Validar formularios">
+                    </div>
+                    <div class="form-group">
+                        <label for="estado_id">Estado Inicial:</label>
+                        <select id="estado_id">
+                            <option value="0">Pendiente</option>
+                            <option value="1">Terminado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="usuario_id">Asignar a Empleado:</label>
+                        <select id="usuario_id" required>
+                            <option value="">Cargando empleados...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria_id">Categoría / Área:</label>
+                        <select id="categoria_id" required>
+                            <option value="">Cargando categorías...</option>
+                        </select>
+                    </div>
+                    <div class="botones-form">
+                        <button type="submit" class="btn-primary">Guardar Tarea</button>
+                        <button type="button" id="btn-cancelar" class="btn-secondary" style="display: none;">Cancelar</button>
+                    </div>
+                </form>
+            </div>
 
-                <div class="form-group">
-                    <label for="estado_id">Estado Inicial:</label>
-                    <select id="estado_id">
-                        <option value="0">Pendiente</option>
-                        <option value="1">Terminado</option>
-                    </select>
-                </div>
-
-                <!-- 🌟 RETO RELACIONAL: Menús desplegables vacíos que cargaremos con JavaScript -->
-                <div class="form-group">
-                    <label for="usuario_id">Asignar a Empleado:</label>
-                    <select id="usuario_id" required>
-                        <option value="">Cargando empleados...</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="categoria_id">Categoría / Área:</label>
-                    <select id="categoria_id" required>
-                        <option value="">Cargando categorías...</option>
-                    </select>
-                </div>
-                 
-                <div class="botones-form">
-                    <button type="submit" class="btn-primary">Guardar Tarea</button>
-                    <button type="button" id="btn-cancelar" class="btn-secondary" style="display: none;">Cancelar</button>
-                </div>
-            </form>
+            <!-- Tabla Actividades -->
+            <div class="card table-card">
+                <h2>Lista de Actividades Relacionales</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Actividad</th>
+                            <th>Estado</th>
+                            <th>Encargado</th>
+                            <th>Categoría</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-actividades-body"></tbody>
+                </table>
+            </div>
         </section>
 
-        <!-- SECCIÓN 2: TABLA DONDE SE MOSTRARÁN LAS TAREAS DE LA API -->
-        <section class="card">
-            <h2>Lista de Actividades Relacionales</h2>
-            <table id="tabla-actividades">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Actividad</th>
-                        <th>Estado</th>
-                        <th>Encargado</th>
-                        <th>Categoría</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="lista-actividades-body">
-                    <!-- Aquí JavaScript inyectará las filas de la API dinámicamente -->
-                </tbody>
-            </table>
-        </section>
-       
-       
-       
-        <!-- SECCIÓN 3: FORMULARIO INDEPENDIENTE PARA NUEVO EMPLEADO -->
-        <section class="card">
-            <h2>👤 Registrar Nuevo Empleado</h2>
-            <form id="form-usuario">
-                <div class="form-group">
-                    <label for="nombre_usuario">Nombre Completo:</label>
-                    <!-- type="text" para capturar letras planas -->
-                    <input type="text" id="nombre_usuario" required placeholder="Ej: Andrea Mendoza">
-                </div>
-                <div class="form-group">
-                    <label for="email_usuario">Correo Electrónico:</label>
-                    <!-- type="email" obliga al navegador a validar que lleve un @ y un dominio -->
-                    <input type="email" id="email_usuario" required placeholder="Ej: andrea@correo.com">
-                </div>
-                <div class="form-group">
-                    <label for="rol_usuario">Rol:</label>
-                    <!-- type="email" obliga al navegador a validar que lleve un @ y un dominio -->
-                    <input type="text" id="rol_usuario" required placeholder="Ej: Desarrollador">
-                </div>
-                <button type="submit" class="btn-primary">Registrar Empleado</button>
-            </form>
+        <!-- =======================================================
+             MÓDULO 2: GESTIÓN DE EMPLEADOS
+             ======================================================= -->
+        <section id="modulo-usuarios" class="tab-content">
+            <!-- Formulario Empleados -->
+            <div class="card">
+                <h2>👤 Registrar Nuevo Empleado</h2>
+                <form id="form-usuario">
+                    <div class="form-group">
+                        <label for="nombre_usuario">Nombre Completo:</label>
+                        <input type="text" id="nombre_usuario" required placeholder="Ej: Andrea Mendoza">
+                    </div>
+                    <div class="form-group">
+                        <label for="email_usuario">Correo Electrónico:</label>
+                        <input type="email" id="email_usuario" required placeholder="Ej: andrea@correo.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="rol_usuario">Rol:</label>
+                        <input type="text" id="rol_usuario" required placeholder="Ej: Desarrollador">
+                    </div>
+                    <div class="botones-form">
+                        <button type="submit" class="btn-primary">Registrar Empleado</button>
+                        <button type="button" id="btn-cancelar-user" class="btn-secondary" style="display: none;">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla Empleados -->
+            <div class="card table-card">
+                <h2>Lista de Empleados Habilitados</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-usuarios-body"></tbody>
+                </table>
+            </div>
         </section>
 
-        <!-- SECCIÓN 4: FORMULARIO INDEPENDIENTE PARA NUEVA CATEGORÍA -->
-        <section class="card">
-            <h2>🏷️ Registrar Nueva Categoría / Área</h2>
-            <form id="form-categoria">
-                <div class="form-group">
-                    <label for="nombre_cat_input">Nombre de la Categoría:</label>
-                    <input type="text" id="nombre_cat_input" required placeholder="Ej: Diseño Gráfico">
-                </div>
-                <div class="form-group">
-                    <label for="nombre_cat_input">Color:</label>
-                    <input type="text" id="color_cat_input" required placeholder="Ej: Azul">
-                </div>
-                <button type="submit" class="btn-primary">Registrar Categoría</button>
-            </form>
+        <!-- =======================================================
+             MÓDULO 3: GESTIÓN DE CATEGORÍAS
+             ======================================================= -->
+        <section id="modulo-categorias" class="tab-content">
+            <!-- Formulario Categorías -->
+            <div class="card">
+                <h2>🏷️ Registrar Nueva Categoría / Área</h2>
+                <form id="form-categoria">
+                    <div class="form-group">
+                        <label for="nombre_cat_input">Nombre de la Categoría:</label>
+                        <input type="text" id="nombre_cat_input" required placeholder="Ej: Diseño Gráfico">
+                    </div>
+                    <div class="form-group">
+                        <label for="color_cat_input">Color Identificador:</label>
+                        <input type="text" id="color_cat_input" required placeholder="Ej: Azul">
+                    </div>
+                    <div class="botones-form">
+                        <button type="submit" class="btn-primary">Registrar Categoría</button>
+                        <button type="button" id="btn-cancelar-cat" class="btn-secondary" style="display: none;">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla Categorías -->
+            <div class="card table-card">
+                <h2>Lista de Áreas / Categorías</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Categoría</th>
+                            <th>Color</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-categorias-body"></tbody>
+                </table>
+            </div>
         </section>
-  
+
     </main>
 
-    
-    <!-- 3. PIE DE PÁGINA GLOBAL (FOOTER): Créditos y cierre profesional -->
     <footer class="main-footer">
         <p>&copy; 2026 - Desarrollado por Carlos | Fullstack Python & Flask</p>
     </footer>
 
-    <!-- Enlazamos el cerebro de JavaScript al puro final -->
     <script src="script.js"></script>
 </body>
 </html>

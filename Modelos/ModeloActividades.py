@@ -20,6 +20,7 @@ class ModeloActividades:
                     FROM actividades a 
                     INNER JOIN usuarios u ON a.usuarios_id = u.id
                     INNER JOIN categoria c ON a.categoria_id = c.id
+                        WHERE a.activo = 1;
               """
                     
         # Solo llamas a la función, el 'with' de adentro se encarga del resto
@@ -41,7 +42,7 @@ class ModeloActividades:
                             FROM actividades a 
                             INNER JOIN usuarios u ON a.usuarios_id = u.id
                             INNER JOIN categoria c ON a.categoria_id = c.id
-                            WHERE a.id = %s
+                            WHERE a.id = %s AND a.activo = 1;
                       """
         
         # Lo mismo aquí: se abre, se usa y se destruye automáticamente
@@ -84,7 +85,7 @@ class ModeloActividades:
                 
     def eliminar_actividad(self, id):
                 # 1. Creamos la consulta SQL y agrupamos los valores de forma segura
-                sql = "DELETE FROM actividades WHERE id = %s"
+                sql = "UPDATE actividades SET activo = 0 WHERE id = %s;"
                 valores = (id,)
                  
                 # 2. Usamos el 'with' con la conexión directa para crear un cursor temporal

@@ -9,13 +9,13 @@ class ModeloUsuarios:
     def obtener_usuarios(self):
         # Solo llamas a la función, el 'with' de adentro se encarga del resto
         with self.conexion_MA.conexion.cursor(dictionary=True) as cursor_temporal:
-            cursor_temporal.execute("SELECT * FROM usuarios")
+            cursor_temporal.execute("SELECT id, nombre, email, rol FROM usuarios WHERE activo = 1;")
             return cursor_temporal.fetchall() # Recuerda retornar los datos. 
         
     def obtener_usuario(self, id):
         # Lo mismo aquí: se abre, se usa y se destruye automáticamente
         with self.conexion_MA.conexion.cursor(dictionary=True) as cursor_temporal:
-            cursor_temporal.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+            cursor_temporal.execute("SELECT id, nombre, email, rol FROM usuarios WHERE id = %s AND activo = 1;", (id,))
             return cursor_temporal.fetchone()
         
     def ingresar_usuario(self, usuario, email, rol ):
@@ -47,7 +47,7 @@ class ModeloUsuarios:
                 
     def eliminar_usuario(self, id):
                     # 1. Creamos la consulta SQL y agrupamos los valores de forma segura
-                    sql = "DELETE FROM usuarios WHERE id = %s"
+                    sql = "UPDATE usuarios SET activo = 0 WHERE id = %s;"
                     valores = (id,)
                      
                     # 2. Usamos el 'with' con la conexión directa para crear un cursor temporal

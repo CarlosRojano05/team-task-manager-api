@@ -62,8 +62,10 @@ def actualizarusuario(id):
 
 @usuarios_bp.route('/eliminar_usuario/<int:id>', methods = ['DELETE'])
 def eliminarusuario(id):
-    if usuarios.obtener_usuario(id):
-       usuarios.eliminar_usuario(id)
-       return jsonify({"mensaje": f"usuario con el ID {id} fue eliminado correctamente"})
+    
+    filas_alteradas = usuarios.eliminar_usuario(id)
+    
+    if filas_alteradas > 0:   
+       return jsonify({"mensaje": f"Empleado con el ID {id} fue eliminado correctamente"})
     else:
-       return jsonify({"mensaje": f"usuario con el ID {id} no existe"}), 404
+       return jsonify({"mensaje": f"No se encontró el empleado con el ID {id} o ya estaba inactivo"}), 404

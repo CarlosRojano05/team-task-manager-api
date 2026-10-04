@@ -59,8 +59,10 @@ def actualizarcategoria(id):
 
 @categoria_bp.route('/eliminar_categoria/<int:id>', methods = ['DELETE'])
 def eliminarcategoria(id):
-    if categorias.obtener_categoria(id):
-       categorias.eliminar_categoria(id)
-       return jsonify({"mensaje": f"categoria con el ID {id} eliminado correctamente"})
+    
+    fila_afectada = categorias.eliminar_categoria(id)
+    
+    if fila_afectada > 0:
+       return jsonify({"mensaje": f"Categoría con el ID {id} fue eliminado correctamente"})
     else:
-       return jsonify({"mensaje": f"categoría con el ID {id} no existe"}), 404
+       return jsonify({"mensaje": f"No se encontró la categoía con el ID {id} o ya estaba inactivo"}), 404

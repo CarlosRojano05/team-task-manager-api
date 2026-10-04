@@ -1,6 +1,8 @@
 // 1. La dirección central de tu servidor de Flask
 const URL_BASE = 'http://127.0.0.1:5000';
 let idActividadEnEdicion = null; // NUEVO: Guardará el ID de la tarea que se va a actualizar
+let idUsuarioEnEdicion = null;    
+let idCategoriaEnEdicion = null;
 
 // 2. Función automática que se ejecuta apenas carga la página web
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,7 +23,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const formCategoria = document.getElementById('form-categoria');
     formCategoria.addEventListener('submit', guardarCategoria);
 
+    // 🌟 CONTROLADOR DE PESTAÑAS (TABS) DINÁMICAS
+    const botonesPestañas = document.querySelectorAll('.tab-btn');
+    const contenidosPestañas = document.querySelectorAll('.tab-content');
 
+    botonesPestañas.forEach(boton => {
+        boton.addEventListener('click', () => {
+            // A. Quitamos la clase 'active' al botón que la tenía antes
+            document.querySelector('.tab-btn.active').classList.remove('active');
+            // B. Le ponemos 'active' al botón que el usuario acaba de presionar
+            boton.classList.add('active');
+
+            // C. Ocultamos todos los contenedores de los formularios abajo
+            contenidosPestañas.forEach(contenido => contenido.classList.remove('active'));
+            
+            // D. Raspamos el 'data-tab' secreto del botón y encendemos el cajón correcto
+            const pestañaObjetivo = boton.getAttribute('data-tab');
+            document.getElementById(pestañaObjetivo).classList.add('active');
+        });
+    });
+
+    document.getElementById('btn-cancelar-user').addEventListener('click', finalizarFlujoUsuario);
+    document.getElementById('btn-cancelar-cat').addEventListener('click', finalizarFlujoCategoria);
 });
 
 //  El cerebro: Hace el mismo trabajo que hacías en Postman con el GET
@@ -88,31 +111,75 @@ function cargarDatosEnFormulario(id, nombre, estado, usuarioId, categoriaId) {
 
 // NUEVA FUNCIÓN: Trae los usuarios de MySQL y los mete en el desplegable
 function cargarUsuarios() {
-    fetch(`${URL_BASE}/usuarios`) // El endpoint GET que creaste solo
+    fetch(`${URL_BASE}/usuarios`)
         .then(respuesta => respuesta.json())
         .then(usuarios => {
+            // A. Rellenamos el menú desplegable (El de las tareas arriba)
             const selectUsuarios = document.getElementById('usuario_id');
-            selectUsuarios.innerHTML = '<option value="">-- Selecciona un Empleado --</option>'; // Limpiamos el "Cargando..."
+            selectUsuarios.innerHTML = '<option value="">-- Selecciona un Empleado --</option>';
             
+            // 🌟 B. Atrapamos el cuerpo de la nueva tabla de empleados habilitados
+            const tablaUsuariosBody = document.getElementById('lista-usuarios-body');
+            tablaUsuariosBody.innerHTML = ''; // Limpiamos residuos viejos
+
             usuarios.forEach(user => {
-                // El 'value' guarda el ID para mandarlo a la BD, pero el ojo humano ve el NOMBRE
+                // Llenamos el select desplegable
                 selectUsuarios.innerHTML += `<option value="${user.id}">${user.nombre}</option>`;
+                
+                // 🌟 Llenamos la fila física de la tabla de empleados
+                const filaUser = `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.nombre}</td>
+                        <td>${user.email}</td>
+                        <td>${user.rol}</td>
+                        <td>
+                            <!-- Pasamos el ID al misil de borrado lógico -->
+                            <button class="btn-edit" onclick="cargarDatosUsuarioForm(${user.id}, '${user.nombre}', '${user.email}', '${user.rol}')">Editar</button>
+                            <button class="btn-delete" onclick="eliminarUsuario(${user.id})">Desactivar</button>
+                        </td>
+                    </tr>
+                `;
+                tablaUsuariosBody.innerHTML += filaUser;
             });
-        });
+        })
+        .catch(error => console.error("Error al cargar usuarios:", error));
 }
+
 
 // NUEVA FUNCIÓN: Trae las categorías de MySQL y las mete en el desplegable
 function cargarCategorias() {
-    fetch(`${URL_BASE}/categorias`) // El endpoint GET de categorías
+    fetch(`${URL_BASE}/categorias`)
         .then(respuesta => respuesta.json())
         .then(categorias => {
+            // A. Rellenamos el menú desplegable de tareas
             const selectCategorias = document.getElementById('categoria_id');
             selectCategorias.innerHTML = '<option value="">-- Selecciona una Categoría --</option>';
             
+            // 🌟 B. Atrapamos el cuerpo de la nueva tabla de categorías
+            const tablaCategoriasBody = document.getElementById('lista-categorias-body');
+            tablaCategoriasBody.innerHTML = '';
+
             categorias.forEach(cat => {
+                // Llenamos el select desplegable
                 selectCategorias.innerHTML += `<option value="${cat.id}">${cat.nombre_categoria}</option>`;
+                
+                // 🌟 Llenamos la fila física de la tabla de áreas
+                const filaCat = `
+                    <tr>
+                        <td>${cat.id}</td>
+                        <td>${cat.nombre_categoria}</td>
+                        <td><span style="color: ${cat.color}; font-weight: bold;">■</span> ${cat.color}</td>
+                        <td>
+                            <button class="btn-edit" onclick="cargarDatosCategoriaForm(${cat.id}, '${cat.nombre_categoria}', '${cat.color}')">Editar</button>
+                            <button class="btn-delete" onclick="eliminarCategoria(${cat.id})">Desactivar</button>
+                        </td>
+                    </tr>
+                `;
+                tablaCategoriasBody.innerHTML += filaCat;
             });
-        });
+        })
+        .catch(error => console.error("Error al cargar categorías:", error));
 }
 
 function guardarTarea(evento) { 
@@ -208,73 +275,173 @@ function eliminarTarea(id) {
 // SECCIÓN 3: FUNCIÓN PARA ENVIAR EL NUEVO EMPLEADO A FLASK
 
 function guardarUsuario(evento) {
-    // 1. Ponemos el "freno de mano" para que la página no parpadee
     evento.preventDefault();
 
-    // 2. Raspamos los datos de las cajas de texto de usuarios
     const nombre = document.getElementById('nombre_usuario').value;
     const email = document.getElementById('email_usuario').value;
     const rol = document.getElementById('rol_usuario').value;
 
-    // 3. Empacamos el JSON exacto. 
-    // 🧠 EL PORQUÉ DE LAS LLAVES: Revisa tu ControladorUsuarios.py. 
-    // Si allá buscas request.json.get('nombre_') y 'email_', aquí se deben llamar igual.
-    const nuevoUsuario = {
-        "usuario_": nombre,
+    const datosUsuario = {
+        "nombre_": nombre,
         "email_": email,
         "rol_": rol
     };
 
-    // 4. Disparamos el misil POST a tu endpoint de usuarios
-    fetch(`${URL_BASE}/nuevo_usuario`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json' // El letrero frágil para Flask
-        },
-        body: JSON.stringify(nuevoUsuario) // Aplanamos el objeto a texto plano para el cable
-    })
-    .then(respuesta => respuesta.json())
-    .then(resultado => {
-        alert(resultado.mensaje || "usuario registrado con éxito"); // Alerta de éxito
-        
-        // 🌟 REINICIO MANUAL E INTELIGENTE:
-        document.getElementById('form-usuario').reset(); // Limpiamos las cajitas de usuario
-        cargarUsuarios(); // ¡LA MAGIA! Volvemos a llamar al GET para que el nuevo nombre aparezca de una vez en el menú desplegable de las tareas arriba sin dar F5
-    })
-    .catch(error => console.error("Error al registrar usuario:", error));
+    // 🌟 EVALUACIÓN INTELIGENTE PARA USUARIOS
+    if (idUsuarioEnEdicion !== null) {
+        // Hacemos el PUT hacia el endpoint de actualizar (Asegúrate de tener esta ruta en tu Flask)
+        fetch(`${URL_BASE}/actualizar_usuario/${idUsuarioEnEdicion}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosUsuario)
+        })
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+            alert(resultado.mensaje || "Empleado actualizado");
+            finalizarFlujoUsuario();
+        })
+        .catch(error => console.error("Error al actualizar usuario:", error));
+    } else {
+        // POST tradicional de antes
+        fetch(`${URL_BASE}/nuevo_usuario`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosUsuario)
+        })
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+            alert(resultado.mensaje || "Empleado registrado");
+            finalizarFlujoUsuario();
+        })
+        .catch(error => console.error("Error al registrar usuario:", error));
+    }
 }
+
 
 
 // SECCIÓN 4: FUNCIÓN PARA ENVIAR LA NUEVA CATEGORÍA A FLASK
 
 function guardarCategoria(evento) {
-
     evento.preventDefault();
 
-    // Raspamos el nombre desde su ID único
     const nombreCategoria = document.getElementById('nombre_cat_input').value;
     const color = document.getElementById('color_cat_input').value;
 
-    // Empacamos el JSON para tu ControladorCategorias.py
-    const nuevaCategoria = {
-        "categoria_": nombreCategoria, // Revisa si en tu Flask lo buscas como 'categoria_' o 'nombre_categoria_'
+    const datosCategoria = {
+        "categoria_": nombreCategoria,
         "color_": color
     };
 
-    fetch(`${URL_BASE}/nueva_categoria`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(nuevaCategoria)
-    })
-    .then(respuesta => respuesta.json())
-    .then(resultado => {
-        alert(resultado.mensaje || "Categoría registrada con éxito");
-        
-        document.getElementById('form-categoria').reset(); // Limpiamos la cajita de categoría
-        cargarCategorias(); //  ¡LA MAGIA! Refrescamos el select de categorías de arriba al instante
-    })
-    .catch(error => console.error("Error al registrar categoría:", error));
+    // 🌟 EVALUACIÓN INTELIGENTE PARA CATEGORÍAS
+    if (idCategoriaEnEdicion !== null) {
+        fetch(`${URL_BASE}/actualizar_categoria/${idCategoriaEnEdicion}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosCategoria)
+        })
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+            alert(resultado.mensaje || "Categoría actualizada");
+            finalizarFlujoCategoria();
+        })
+        .catch(error => console.error("Error al actualizar categoría:", error));
+    } else {
+        fetch(`${URL_BASE}/nueva_categoria`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosCategoria)
+        })
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+            alert(resultado.mensaje || "Categoría registrada");
+            finalizarFlujoCategoria();
+        })
+        .catch(error => console.error("Error al registrar categoría:", error));
+    }
 }
 
+
+// =======================================================
+// SECCIÓN DE BORRADO LÓGICO PARA EMPLEADOS Y CATEGORÍAS
+// =======================================================
+window.eliminarUsuario = function(id) {
+    if (!confirm(`¿Estás seguro de que deseas dar de baja al empleado con ID ${id}? Sus tareas pasadas no se perderán.`)) {
+        return;
+    }
+
+    fetch(`${URL_BASE}/eliminar_usuario/${id}`, { method: 'DELETE' })
+    .then(respuesta => respuesta.json())
+    .then(resultado => {
+        alert(resultado.mensaje || resultado.error);
+        cargarUsuarios(); // 👈 Recarga instantánea: Refresca su tabla y el select de arriba al mismo tiempo
+        cargarActividades(); // Refrescamos las actividades por si cambió algún estado
+    })
+    .catch(error => console.error("Error al desactivar usuario:", error));
+}
+
+window.eliminarCategoria = function(id) {
+    if (!confirm(`¿Estás seguro de que deseas desactivar el área con ID ${id}?`)) {
+        return;
+    }
+
+    fetch(`${URL_BASE}/eliminar_categoria/${id}`, { method: 'DELETE' })
+    .then(respuesta => respuesta.json())
+    .then(resultado => {
+        alert(resultado.mensaje || resultado.error);
+        cargarCategorias(); // 👈 Recarga la tabla de áreas y limpia su select arriba
+        cargarActividades();
+    })
+    .catch(error => console.error("Error al desactivar categoría:", error));
+}
+
+// =======================================================
+// CARGAR EMPLEADO EN FORMULARIO
+// =======================================================
+window.cargarDatosUsuarioForm = function(id, nombre, email, rol) {
+    idUsuarioEnEdicion = id; // Guardamos el ID secreto
+
+    document.getElementById('nombre_usuario').value = nombre;
+    document.getElementById('email_usuario').value = email;
+    document.getElementById('rol_usuario').value = rol;
+
+    const botonForm = document.querySelector('#form-usuario .btn-primary');
+    botonForm.textContent = "Actualizar Empleado";
+    botonForm.style.backgroundColor = "#ff9800"; // Naranja de edición
+
+    document.getElementById('btn-cancelar-user').style.display = "inline-block"; // Mostramos cancelar
+}
+
+// =======================================================
+// CARGAR CATEGORÍA EN FORMULARIO
+// =======================================================
+window.cargarDatosCategoriaForm = function(id, nombre, color) {
+    idCategoriaEnEdicion = id;
+
+    document.getElementById('nombre_cat_input').value = nombre;
+    document.getElementById('color_cat_input').value = color;
+
+    const botonForm = document.querySelector('#form-categoria .btn-primary');
+    botonForm.textContent = "Actualizar Categoría";
+    botonForm.style.backgroundColor = "#ff9800";
+
+    document.getElementById('btn-cancelar-cat').style.display = "inline-block";
+}
+window.finalizarFlujoUsuario = function() {
+    document.getElementById('form-usuario').reset();
+    idUsuarioEnEdicion = null;
+    const botonForm = document.querySelector('#form-usuario .btn-primary');
+    botonForm.textContent = "Registrar Empleado";
+    botonForm.style.backgroundColor = "";
+    document.getElementById('btn-cancelar-user').style.display = "none";
+    cargarUsuarios();
+}
+
+window.finalizarFlujoCategoria = function() {
+    document.getElementById('form-categoria').reset();
+    idCategoriaEnEdicion = null;
+    const botonForm = document.querySelector('#form-categoria .btn-primary');
+    botonForm.textContent = "Registrar Categoría";
+    botonForm.style.backgroundColor = "";
+    document.getElementById('btn-cancelar-cat').style.display = "none";
+    cargarCategorias();
+}

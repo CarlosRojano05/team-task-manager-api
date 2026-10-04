@@ -1,242 +1,259 @@
+
 /* ==========================================================================
    1. RESETEO Y TIPOGRAFÍA GLOBAL
    ========================================================================== */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: #f8f9fa;
-    color: #334155;
-    padding: 40px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  background-color: #f8f9fa;
+  color: #334155;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* ==========================================================================
-   2. ENCABEZADO (HEADER) MODERNIZADO
-   ========================================================================== */
 .main-header {
-    text-align: center;
-    margin-bottom: 40px;
-    width: 100%;
-    max-width: 1100px;
+  text-align: center;
+  margin-bottom: 30px;
+  width: 100%;
+  max-width: 1100px;
 }
 
 .main-header h1 {
-    font-size: 2.5rem;
-    color: #1e293b;
-    font-weight: 700;
-    margin-bottom: 8px;
+  font-size: 2.3rem;
+  color: #1e293b;
+  font-weight: 700;
+  margin-bottom: 8px;
 }
 
 .main-header p {
-    color: #64748b;
-    font-size: 1rem;
+  color: #64748b;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
 }
 
 /* ==========================================================================
-   3. CONTENEDOR PRINCIPAL (GRID LAYOUT SENIOR)
+   2. DISEÑO DE LA BARRA DE NAVEGACIÓN (TABS NAV)
    ========================================================================== */
-/* Usamos CSS Grid para que los formularios se acomoden de forma inteligente en la pantalla */
-.container {
-    width: 100%;
-    max-width: 1100px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px;
-    
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  background: #ffffff;
+  padding: 6px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  border: 1px solid #e2e8f0;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-/* Cuando la pantalla sea de computadora, divide la interfaz en dos columnas simétricas */
-@media (min-width: 768px) {
-    .container {
-        grid-template-columns: 1fr 1fr;
-    }
-    /* Hacemos que la tabla ocupe las dos columnas completas abajo para mayor espacio */
-    .container .card:nth-child(1) {
-        grid-column: span 2;     /* Toma el carril completo de arriba */
-        max-width: 550px;       /* Ancho perfecto para que no se vea gigante */
-        width: 100%;            
-        justify-self: center;   /* 👈 ¡ESTA ES LA MAGIA! Lo centra solo a él en la pantalla */
-    }
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
-    /* 🌟 PASO 2: Obliga a la Tabla de Actividades a ocupar las dos columnas abajo */
-    .container .card:nth-child(2) {
-        grid-column: span 2;
-        width: 100%; 
-    }
+/* Botón de la pestaña seleccionada actualmente */
+.tab-btn.active {
+  background-color: #4f46e5;
+  color: #ffffff;
+}
 
-    /* 🌟 PASO 3: Los dos formularios pequeños de abajo se quedan uno al lado del otro de forma nativa */
-    .container .card:nth-child(3),
-    .container .card:nth-child(4) {
-        grid-column: span 1;
-        width: 100%;
-    }
+.tab-btn:hover:not(.active) {
+  background-color: #f1f5f9;
+  color: #334155;
 }
 
 /* ==========================================================================
-   4. DISEÑO DE TARJETAS (CARDS)
+   3. CONTROLADORES DE VISIBILIDAD (EL CORAZÓN SPA)
+   ========================================================================== */
+.tab-content {
+  display: none; /* 🌟 Escondido por defecto */
+}
+
+/* El contenedor interno adopta el Grid para centrar formularios en PC */
+.tab-content.active {
+  display: grid; /* 🌟 Se muestra solo el activo */
+  width: 100%;
+  max-width: 1100px;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+/* Configuración simétrica para monitores de PC */
+@media (min-width: 768px) {
+  .tab-content.active {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Centramos todos los formularios de creación arriba de sus respectivas tablas */
+  .tab-content.active .card:nth-child(1) {
+    grid-column: span 2;
+    max-width: 550px;
+    width: 100%;
+    justify-self: center;
+  }
+
+  /* Las tablas de listado ocupan el carril completo abajo */
+  .tab-content.active .card:nth-child(2) {
+    grid-column: span 2;
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   4. DISEÑO DE TARJETAS, COMPONENTES Y TABLAS (ESTÁNDAR SAAS)
    ========================================================================== */
 .card {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
 }
 
 .card h2 {
-    font-size: 1.3rem;
-    color: #0f172a;
-    margin-bottom: 24px;
-    border-bottom: 2px solid #f1f5f9;
-    padding-bottom: 12px;
+  font-size: 1.25rem;
+  color: #0f172a;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 10px;
 }
 
-/* ==========================================================================
-   5. COMPONENTES DE FORMULARIO
-   ========================================================================== */
 .form-group {
-    margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #475569;
-    margin-bottom: 8px;
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
 }
 
-/* Estilo unificado para cajas de texto y menús desplegables */
 .form-group input,
 .form-group select {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    color: #334155;
-    background-color: #f8fafc;
-    transition: all 0.3s ease;
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  color: #334155;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
 }
 
-/* Efecto visual cuando el usuario hace clic para escribir */
 .form-group input:focus,
 .form-group select:focus {
-    outline: none;
-    border-color: #4f46e5;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  outline: none;
+  border-color: #4f46e5;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 
-/* ==========================================================================
-   6. BOTONES (BUTTONS) MODERNOS
-   ========================================================================== */
 .botones-form {
-    display: flex;
-    gap: 12px;
-    margin-top: 10px;
+  display: flex;
+  gap: 12px;
 }
 
 button {
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 600;
-    padding: 12px 24px;
-    border-radius: 8px;
-    border: none;
-    transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 11px 20px;
+  border-radius: 8px;
+  border: none;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
-    background-color: #4f46e5;
-    color: #ffffff;
-    width: 100%;
+  background-color: #4f46e5;
+  color: #ffffff;
+  width: 100%;
 }
 
 .btn-primary:hover {
-    background-color: #4338ca;
+  background-color: #4338ca;
 }
 
 .btn-secondary {
-    background-color: #e2e8f0;
-    color: #475569;
+  background-color: #e2e8f0;
+  color: #475569;
 }
 
 .btn-secondary:hover {
-    background-color: #cbd5e1;
+  background-color: #cbd5e1;
 }
 
-/* ==========================================================================
-   7. TABLA DE DATOS (DATA TABLE STANDARD)
-   ========================================================================== */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    font-size: 0.95rem;
+  width: 100%;
+  border-collapse: collapse;
 }
 
-th, td {
-    padding: 16px;
-    text-align: left;
-    border-bottom: 1px solid #f1f5f9;
+th,
+td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 th {
-    background-color: #f8fafc;
-    color: #64748b;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
 }
 
 tr:hover {
-    background-color: #f8fafc;
+  background-color: #f8fafc;
 }
 
-/* Botones pequeños de acción dentro de la tabla */
-.btn-edit, .btn-delete {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-    border-radius: 6px;
-    margin-right: 6px;
+.btn-edit,
+.btn-delete {
+  padding: 5px 10px;
+  font-size: 0.82rem;
+  border-radius: 6px;
+  margin-right: 4px;
 }
 
 .btn-edit {
-    background-color: #ef4444; /* Reutilizamos variables limpias */
-    color: white;
-    background-color: #3b82f6;
+  background-color: #3b82f6;
+  color: white;
 }
 
 .btn-edit:hover {
-    background-color: #2563eb;
+  background-color: #2563eb;
 }
 
 .btn-delete {
-    background-color: #fee2e2;
-    color: #ef4444;
+  background-color: #fee2e2;
+  color: #ef4444;
 }
 
 .btn-delete:hover {
-    background-color: #fca5a5;
-    color: #b91c1c;
+  background-color: #fca5a5;
+  color: #b91c1c;
 }
 
-/* ==========================================================================
-   8. PIE DE PÁGINA (FOOTER)
-   ========================================================================== */
 .main-footer {
-    margin-top: 60px;
-    text-align: center;
-    color: #94a3b8;
-    font-size: 0.85rem;
-    width: 100%;
+  margin-top: 50px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.8rem;
 }
